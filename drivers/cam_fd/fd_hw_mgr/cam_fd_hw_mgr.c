@@ -1274,6 +1274,8 @@ static int cam_fd_mgr_hw_start(void *hw_mgr_priv, void *mgr_start_args)
 		return rc;
 	}
 
+	hw_device->ready_to_process = true;
+
 	fd_hw = (struct cam_hw_info *)hw_device->hw_intf->hw_priv;
 	fd_core = (struct cam_fd_core *)fd_hw->core_info;
 
@@ -1462,6 +1464,7 @@ static int cam_fd_mgr_hw_flush_ctx(void *hw_mgr_priv,
 			continue;
 
 		list_del_init(&frame_req->list);
+		CAM_INFO(CAM_FD, "Request deleted from frame processing list");
 		mutex_lock(&hw_device->lock);
 		if ((hw_device->ready_to_process == true) ||
 			(hw_device->cur_hw_ctx != hw_ctx))
@@ -1696,6 +1699,8 @@ static int cam_fd_mgr_hw_stop(void *hw_mgr_priv, void *mgr_stop_args)
 
 	CAM_DBG(CAM_FD, "FD Device ready_to_process = %d",
 		hw_device->ready_to_process);
+
+	hw_device->ready_to_process = true;
 
 	if (hw_device->hw_intf->hw_ops.deinit) {
 		hw_deinit_args.hw_ctx = hw_ctx;
